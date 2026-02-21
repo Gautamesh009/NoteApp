@@ -18,13 +18,12 @@ import androidx.navigation.navArgument
 import com.example.noteapp.NoteAppViewModel.NoteViewModel
 import com.example.noteapp.UIDesign.MainScreen
 import com.example.noteapp.UIDesign.NoteElement
+import com.example.noteapp.UIDesign.NoteFieldCom
 import com.example.noteapp.UIDesign.UpdateNote
-import com.example.noteapp.UIDesign.noteField
 import com.example.noteapp.ui.theme.NoteAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        val viewModel : NoteViewModel
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -45,7 +44,7 @@ fun AppNavHost() {
             MainScreen(viewModel, navController)
         }
         composable("noteField") {
-            noteField(navController, viewModel)
+            NoteFieldCom(navController, viewModel)
         }
         composable("noteElement/{noteNum}",
             arguments = listOf(
