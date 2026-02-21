@@ -47,9 +47,8 @@ import com.example.noteapp.DataBase.NoteEntity
 import com.example.noteapp.NoteAppViewModel.NoteViewModel
 import kotlin.math.round
 
-@Preview
 @Composable
-fun UpdateNote() {
+fun UpdateNote(navController: NavController, viewModel : NoteViewModel) {
     val textField = remember { mutableStateOf("") }
     val topAppBarColor = remember { mutableStateOf(Color(0xFF3D91DE)) }
 
@@ -131,11 +130,6 @@ fun UpdateNote() {
                         Text("Update")
                     }
                 )
-            }
-        },
-        bottomBar = {
-            BottomAppBar {
-
             }
         }
     )

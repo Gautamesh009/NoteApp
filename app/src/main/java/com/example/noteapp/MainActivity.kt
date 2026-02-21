@@ -18,6 +18,7 @@ import androidx.navigation.navArgument
 import com.example.noteapp.NoteAppViewModel.NoteViewModel
 import com.example.noteapp.UIDesign.MainScreen
 import com.example.noteapp.UIDesign.NoteElement
+import com.example.noteapp.UIDesign.UpdateNote
 import com.example.noteapp.UIDesign.noteField
 import com.example.noteapp.ui.theme.NoteAppTheme
 
@@ -55,6 +56,9 @@ fun AppNavHost() {
             ) {
             val noteNum = it.arguments!!.getInt("noteNum")
             NoteElement(viewModel, navController, noteNum)
+        }
+        composable("updateNote/{noteNum}") {
+            UpdateNote(navController, viewModel)
         }
     }
 }

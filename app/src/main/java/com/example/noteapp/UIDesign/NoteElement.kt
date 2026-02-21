@@ -101,7 +101,8 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    note.author?.let { text -> Text("Author Name: ${note.author}",
+                    note.author?.let { text ->
+                        Text("Author Name: ${note.author}",
                             fontSize = 10.sp
                         ) }
 
