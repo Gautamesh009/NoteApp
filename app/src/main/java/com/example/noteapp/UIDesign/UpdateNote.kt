@@ -3,6 +3,7 @@
 package com.example.noteapp.UIDesign
 
 import android.R
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,9 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,33 +33,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.room.util.TableInfo
 import com.example.noteapp.DataBase.NoteEntity
 import com.example.noteapp.NoteAppViewModel.NoteViewModel
+import kotlin.math.round
 
-//@Preview
+@Preview
 @Composable
-fun noteField(navController: NavController, viewModel : NoteViewModel) {
-
-
-    val titleTextField = remember { mutableStateOf("") }
-    val authorTextField = remember { mutableStateOf("") }
-    val noteTextField = remember { mutableStateOf("") }
-
+fun UpdateNote() {
+    val textField = remember { mutableStateOf("") }
     val topAppBarColor = remember { mutableStateOf(Color(0xFF3D91DE)) }
+
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Row {
-                        Text("Create note",
+                        Text("Update Note",
                             fontSize = 28.sp,
                             fontFamily = FontFamily.Serif,
                             fontWeight = FontWeight.W200,
@@ -68,7 +69,7 @@ fun noteField(navController: NavController, viewModel : NoteViewModel) {
                 },
                 navigationIcon = {
                     IconButton({
-                        navController.popBackStack()
+
                     }) {
                         Icon(Icons.Filled.ArrowBack,
                             null)
@@ -77,22 +78,16 @@ fun noteField(navController: NavController, viewModel : NoteViewModel) {
 
                 actions = {
                     IconButton(onClick = {
-                        val save = NoteEntity(
-                            title = titleTextField.value,
-                            author = authorTextField.value,
-                            notes = titleTextField.value
-                        )
-                        val insertNote = viewModel.insert(save)
-                        navController.popBackStack()
+
                     }) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_menu_save),
+                            Icons.Filled.Check,
                             null
                         )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor =topAppBarColor.value
+                    containerColor = topAppBarColor.value
                 )
             )
         },
@@ -104,53 +99,38 @@ fun noteField(navController: NavController, viewModel : NoteViewModel) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    OutlinedTextField(value = titleTextField.value, onValueChange = {
-                        titleTextField.value = it
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = textField.value,
+                    onValueChange = {
+                        textField.value = it
                     },
-                        label = {
-                            Text("Title")
-                        },
-                        colors = TextFieldDefaults.colors(
-                            Color.Black,
-                            Color.Black,
-                            Color.Black
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    OutlinedTextField(value = authorTextField.value, onValueChange = {
-                        authorTextField.value = it
+                    label = {
+                        Text("Update")
+                    }
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = textField.value,
+                    onValueChange = {
+                        textField.value = it
                     },
-                        label = {
-                            Text("Author (Optional)")
-                        },
-                        colors = TextFieldDefaults.colors(
-                            Color.Black,
-                            Color.Black,
-                            Color.Black
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    OutlinedTextField(value = noteTextField.value, onValueChange = {
-                        noteTextField.value = it
+                    label = {
+                        Text("Update")
+                    }
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxSize(),
+                    value = textField.value,
+                    onValueChange = {
+                        textField.value = it
                     },
-                        label = {
-                            Text("Note")
-                        },
-                        colors = TextFieldDefaults.colors(
-                            Color.Black,
-                            Color.Black ,
-                            Color.Black
-                        ),
-                        maxLines = 40,
-                        modifier = Modifier.fillMaxWidth().fillMaxHeight()
-                    )
-                }
+                    label = {
+                        Text("Update")
+                    }
+                )
             }
         },
         bottomBar = {
