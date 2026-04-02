@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -19,7 +20,7 @@ import com.example.noteapp.NoteAppViewModel.NoteViewModel
 import com.example.noteapp.UIDesign.MainScreen
 import com.example.noteapp.UIDesign.NoteElement
 import com.example.noteapp.UIDesign.NoteFieldCom
-import com.example.noteapp.UIDesign.UpdateNote
+import com.example.noteapp.UIDesign.UpdateScreen
 import com.example.noteapp.ui.theme.NoteAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -56,8 +57,13 @@ fun AppNavHost() {
             val noteNum = it.arguments!!.getInt("noteNum")
             NoteElement(viewModel, navController, noteNum)
         }
-        composable("updateNote/{noteNum}") {
-            UpdateNote(navController, viewModel)
+        // ✅ After — extract noteId and pass it down
+        composable(
+            "updateNote/{noteId}",
+            arguments = listOf(navArgument("noteId") { type = NavType.IntType })
+        ) {
+            val noteId = it.arguments!!.getInt("noteId")
+            UpdateScreen(navController, viewModel, noteId)
         }
     }
 }

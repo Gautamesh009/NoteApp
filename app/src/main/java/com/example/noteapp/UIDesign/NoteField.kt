@@ -79,7 +79,7 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                         val save = NoteEntity(
                             title = titleTextField.value,
                             author = authorTextField.value,
-                            notes = titleTextField.value
+                            notes = noteTextField.value
                         )
                         val insertNote = viewModel.insert(save)
                         navController.popBackStack()
@@ -104,7 +104,9 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                 verticalArrangement = Arrangement.Top
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     OutlinedTextField(value = titleTextField.value, onValueChange = {
                         titleTextField.value = it
@@ -120,7 +122,7 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                         modifier = Modifier.fillMaxWidth()
 
                     )
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(5.dp))
                     OutlinedTextField(value = authorTextField.value, onValueChange = {
                         authorTextField.value = it
                     },
@@ -134,7 +136,7 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(5.dp))
                     OutlinedTextField(value = noteTextField.value, onValueChange = {
                         noteTextField.value = it
                     },
@@ -150,11 +152,6 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                         modifier = Modifier.fillMaxWidth().fillMaxHeight()
                     )
                 }
-            }
-        },
-        bottomBar = {
-            BottomAppBar {
-
             }
         }
     )

@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.normalizedAngleCos
 import androidx.navigation.NavController
 import com.example.noteapp.NoteAppViewModel.NoteViewModel
+import com.example.noteapp.R
 
 @Composable
 fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum: Int) {
@@ -45,7 +47,7 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
     return
 }
 
-    note?.let { currentValue ->
+    note.let { currentValue ->
         val topAppBarColor = remember { mutableStateOf(Color(0xFF3D91DE)) }
         Scaffold(
             topBar = {
@@ -73,6 +75,12 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                     },
 
                     actions = {
+                        IconButton({
+                            navController.navigate("updateNote/${note.noteNum}")
+                        }) {
+                            Icon(painter = painterResource(R.drawable.upgrade),
+                                null)
+                        }
                         IconButton({
                             viewModel.delete(currentValue)
                             navController.navigate("mainScreen")

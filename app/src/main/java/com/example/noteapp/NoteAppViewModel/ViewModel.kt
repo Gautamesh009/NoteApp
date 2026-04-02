@@ -41,6 +41,12 @@ class NoteViewModel(private val noteRepo: NoteRepo) : ViewModel() {
         }
     }
 
+    fun update(note : NoteEntity) {
+        viewModelScope.launch {
+            noteRepo.updateNote(note)
+        }
+    }
+
     companion object{
         val Factory : ViewModelProvider.Factory = viewModelFactory {
             initializer {
