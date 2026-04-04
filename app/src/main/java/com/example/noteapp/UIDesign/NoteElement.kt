@@ -48,7 +48,7 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
 }
 
     note.let { currentValue ->
-        val topAppBarColor = remember { mutableStateOf(Color(0xFF3D91DE)) }
+        val topAppBarColor = remember { mutableStateOf(Color(0xFF022F54)) }
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -57,9 +57,10 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                             Text(
                                 "Note Details",
                                 fontSize = 28.sp,
-                                fontFamily = FontFamily.Serif,
+                                fontFamily = FontFamily.Monospace,
                                 fontWeight = FontWeight.W200,
-                                fontStyle = FontStyle.Italic
+                                fontStyle = FontStyle.Normal,
+                                color = Color.White
                             )
                         }
                     },
@@ -70,7 +71,7 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                                 navController.navigate("mainScreen")
                             }
                         ) {
-                            Icon(Icons.Filled.ArrowBack, null)
+                            Icon(Icons.Filled.ArrowBack, null, tint = Color.White)
                         }
                     },
 
@@ -79,7 +80,7 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                             navController.navigate("updateNote/${note.noteNum}")
                         }) {
                             Icon(painter = painterResource(R.drawable.upgrade),
-                                null)
+                                null, tint = Color.White)
                         }
                         IconButton({
                             viewModel.delete(currentValue)
@@ -87,7 +88,7 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                         }) {
                             Icon(
                                 Icons.Filled.Delete,
-                                null
+                                null, tint = Color.White
                             )
                         }
                     },
@@ -105,13 +106,13 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Top
                 ) {
-                    Text(note?.title ?: String(), fontSize = 50.sp, fontWeight = FontWeight.SemiBold)
+                    Text(note?.title ?: String(), fontSize = 50.sp, fontWeight = FontWeight.W500)
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     note.author?.let { text ->
                         Text("Author Name: ${note.author}",
-                            fontSize = 10.sp
+                            fontSize = 14.sp
                         ) }
 
                     Spacer(modifier = Modifier.height(10.dp))

@@ -53,14 +53,15 @@ fun UpdateScreen(
                     Text(
                         "Update Note",
                         fontSize = 28.sp,
-                        fontFamily = FontFamily.Serif,
+                        fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.W200,
-                        fontStyle = FontStyle.Italic
+                        fontStyle = FontStyle.Normal,
+                        color = Color.White
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
                 },
                 actions = {
@@ -81,11 +82,11 @@ fun UpdateScreen(
                             }
                         }
                     }) {
-                        Icon(Icons.Filled.Done, contentDescription = "Save")
+                        Icon(Icons.Filled.Done, contentDescription = "Save", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFF3D91DE)
+                    containerColor = Color(0xFF022F54)
                 )
             )
         }
@@ -109,7 +110,12 @@ fun UpdateScreen(
                     if (titleError) Text("Title cannot be empty", color = MaterialTheme.colorScheme.error)
                 },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    Color.Black,
+                    Color.Black,
+                    Color.Black
+                )
             )
 
             // Author field (optional)
@@ -118,7 +124,12 @@ fun UpdateScreen(
                 onValueChange = { author = it },
                 label = { Text("Author (optional)") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    Color.Black,
+                    Color.Black,
+                    Color.Black
+                )
             )
 
             // Body field
@@ -128,7 +139,12 @@ fun UpdateScreen(
                 label = { Text("Note") },
                 modifier = Modifier
                     .fillMaxSize(),
-                maxLines = 40
+                maxLines = 40,
+                colors = TextFieldDefaults.colors(
+                    Color.Black,
+                    Color.Black,
+                    Color.Black
+                )
             )
         }
     }

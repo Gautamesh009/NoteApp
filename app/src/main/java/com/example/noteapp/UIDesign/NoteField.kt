@@ -49,7 +49,7 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
     val authorTextField = remember { mutableStateOf("") }
     val noteTextField = remember { mutableStateOf("") }
 
-    val topAppBarColor = remember { mutableStateOf(Color(0xFF3D91DE)) }
+    val topAppBarColor = remember { mutableStateOf(Color(0xFF022F54)) }
 
     Scaffold(
         topBar = {
@@ -58,9 +58,10 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                     Row {
                         Text("Create note",
                             fontSize = 28.sp,
-                            fontFamily = FontFamily.Serif,
+                            fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.W200,
-                            fontStyle = FontStyle.Italic
+                            fontStyle = FontStyle.Normal,
+                            color = Color.White
                         )
                     }
                 },
@@ -70,7 +71,8 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                     }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            null)
+                            null
+                            , tint = Color.White)
                     }
                 },
 
@@ -86,7 +88,7 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                     }) {
                         Icon(
                             painter = painterResource(R.drawable.ic_menu_save),
-                            null
+                            null, tint = Color.White
                         )
                     }
                 },

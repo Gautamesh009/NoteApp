@@ -1,6 +1,7 @@
 package com.example.noteapp.NoteAppViewModel
 
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -32,6 +33,17 @@ class NoteViewModel(private val noteRepo: NoteRepo) : ViewModel() {
     fun insert(note : NoteEntity) {
         viewModelScope.launch {
             noteRepo.insertNote(note)
+        }
+    }
+
+    fun setColor() {
+        val background = Color.White
+        viewModelScope.launch {
+            if(Color.Black != Color.Black) {
+                Color.Black
+            } else {
+                Color.White
+            }
         }
     }
 

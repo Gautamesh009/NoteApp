@@ -3,13 +3,16 @@
 package com.example.noteapp.UIDesign
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -17,6 +20,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -49,37 +53,48 @@ import com.example.noteapp.NoteAppViewModel.NoteViewModel
 
 @Composable
 fun MainScreen(viewModel : NoteViewModel, navController: NavController) {
+    val notes by viewModel.notes.collectAsState()
+    val topAppBarColor = remember { mutableStateOf(Color(0xFF022F54)) }
+    val backgroundColor = { viewModel.setColor() }
 
-       val notes by viewModel.notes.collectAsState()
 
-        val topAppBarColor = remember { mutableStateOf(Color(0xFF3D91DE)) }
-
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Row {
-                            Text("Note App",
-                                fontSize = 28.sp,
-                                fontFamily = FontFamily.Serif,
-                                fontWeight = FontWeight.W200,
-                                fontStyle = FontStyle.Italic
-                            )
-                        }
-                    },
-
-                    actions = {
-                        IconButton({
-                            navController.navigate("noteField")
-                        }) {
-                            Icon(Icons.Filled.Add,
-                                null)
-                        }
-                        IconButton({}) {
-                            Icon(Icons.Filled.Delete,
-                                null)
-                        }
-                    },
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row {
+                        Text("My",
+                            fontSize = 28.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.W200,
+                            fontStyle = FontStyle.Normal,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text("Note",
+                            fontSize = 28.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.W200,
+                            fontStyle = FontStyle.Normal,
+                            color = Color.Cyan
+                        )
+                    }
+                        },
+                actions = {
+                    IconButton({
+                        navController.navigate("noteField")
+                    }) {
+                        Icon(Icons.Outlined.Add,
+                            null,
+                            tint = Color.White
+                        )
+                    }
+                    IconButton({}) {
+                        Icon(Icons.Filled.Delete,
+                            null,
+                            tint = Color.White
+                        )
+                    } },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                         containerColor =topAppBarColor.value
                     )
@@ -89,7 +104,16 @@ fun MainScreen(viewModel : NoteViewModel, navController: NavController) {
                 Column(
                     modifier = Modifier
                         .padding(it)
+                        .fillMaxSize()
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Tags:")
+                    }
                     LazyColumn() {
                         items(notes){
                             Column(
@@ -102,9 +126,9 @@ fun MainScreen(viewModel : NoteViewModel, navController: NavController) {
                                         navController.navigate("noteElement/${it.noteNum}")
                                     },
                                     modifier = Modifier.fillMaxWidth()
-                                        .padding(16.dp)
+                                        .padding(8.dp)
                                         .height(70.dp),
-                                    border = BorderStroke(4.dp, Color.Black)
+                                    border = BorderStroke(1.dp, Color.Black)
                                 ) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth()
@@ -116,19 +140,15 @@ fun MainScreen(viewModel : NoteViewModel, navController: NavController) {
                                         Text(
                                             it.title,
                                             fontSize = 30.sp,
-                                            fontWeight = FontWeight.Bold
+                                            fontWeight = FontWeight.W300,
+                                            fontFamily = FontFamily.Monospace,
+                                            fontStyle = FontStyle.Normal
                                         )
                                     }
                                 }
                             }
-
                         }
                     }
-                }
-            },
-            bottomBar = {
-                BottomAppBar {
-
                 }
             }
         )
