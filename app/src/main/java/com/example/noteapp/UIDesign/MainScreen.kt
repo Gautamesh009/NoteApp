@@ -2,15 +2,22 @@
 
 package com.example.noteapp.UIDesign
 
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,18 +26,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -48,24 +58,29 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.noteapp.DataBase.NoteEntity
-import com.example.noteapp.DataBase.NoteRepo
 import com.example.noteapp.NoteAppViewModel.NoteViewModel
+import com.example.noteapp.R
 import com.example.noteapp.UIDesign.Colors.colorForText
+import com.example.noteapp.UIDesign.Colors.cyberpunkClassic
+import com.example.noteapp.UIDesign.Colors.neoTokyo
+import com.example.noteapp.UIDesign.Colors.toxicWaste
+
 @Composable
-fun MainScreen(viewModel : NoteViewModel, navController: NavController) {
+fun MainScreen(viewModel: NoteViewModel, navController: NavController) {
     val notes by viewModel.notes.collectAsState()
     val topAppBarColor = remember { mutableStateOf(Color(0xFF021F38)) }
     val cardBack = remember { mutableStateOf(Color(0xFF0D324B)) }
+
     val infiniteTransition = rememberInfiniteTransition()
     val offset by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -74,149 +89,297 @@ fun MainScreen(viewModel : NoteViewModel, navController: NavController) {
             animation = tween(2000, easing = LinearEasing)
         )
     )
+    val glowColor by infiniteTransition.animateColor(
+        initialValue = Color.Cyan,
+        targetValue = Color.Magenta,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Row {
-                        Text("My",
+                        Text(
+                            "My",
                             fontSize = 28.sp,
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.W200,
-                            fontStyle = FontStyle.Normal,
                             color = Color.White
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text("Note",
+                        Text(
+                            "Note",
                             fontSize = 28.sp,
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.W200,
-                            fontStyle = FontStyle.Normal,
                             color = Color.Cyan,
-                            modifier = Modifier
-                                .shadow(
-                                    elevation = 4.dp,
-                                    ambientColor = Color.White
-                                )
+                            modifier = Modifier.shadow(elevation = 4.dp, ambientColor = Color.White)
                         )
                     }
-                        },
+                },
                 actions = {
-                    IconButton({
-                        navController.navigate("noteField")
-                    }) {
-                        Icon(Icons.Outlined.Add,
-                            null,
-                            tint = Color.White
-                        )
+                    IconButton({ navController.navigate("noteField") }) {
+                        Icon(Icons.Outlined.Add, null, tint = Color.White)
                     }
                     IconButton({}) {
-                        Icon(Icons.Filled.Delete,
-                            null,
-                            tint = Color.White
-                        )
-                    } },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor =topAppBarColor.value
-                    )
+                        Icon(Icons.Filled.Delete, null, tint = Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = topAppBarColor.value
                 )
-            },
-            content = {
-                Column(
-                    modifier = Modifier
-                        .padding(it)
-                        .fillMaxSize()
-                ) {
+            )
+        },
+        content = { paddingValues ->
+
+            // Background
+            Box(modifier = Modifier.fillMaxSize()) {
+                Image(
+                    painter = painterResource(id = R.drawable.img),
+                    contentDescription = "Background",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            // Foreground content
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+
+                // Tags header
+                item {
                     Row(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Tags:")
+                        Text(
+                            "Tags:",
+                            fontSize = 20.sp,
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = cyberpunkClassic,
+                                    start = Offset(offset, 0f),
+                                    end = Offset(offset + 500f, 1f)
+                                )
+                            )
+                        )
                     }
-                    LazyColumn() {
-                        items(notes){
-                            val textColor  = remember(it.noteNum) { colorForText() }
-                            val designColor: Color = remember(it.noteNum) { BackgroundColor() }
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.Top,
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Card(
-                                    onClick = {
-                                        navController.navigate("noteElement/${it.noteNum}")
-                                    },
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = cardBack.value
-                                    ),
-                                    modifier = Modifier
-                                        .width(200.dp)
-                                        .padding(8.dp)
-                                        .height(200.dp),
-                                    border = BorderStroke(1.dp, Color.Black)
-                                ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize()
-                                            .padding(16.dp)
-                                            .height(50.dp),
-                                        verticalArrangement = Arrangement.Top,
-                                        horizontalAlignment = Alignment.Start
-                                    ) {
-                                        Text(
-                                            "~ Tag:",
-                                            color = designColor
-                                        )
-                                        Spacer(Modifier.height(5.dp))
-                                        Text(
-                                            it.title,
-                                            fontSize = 30.sp,
-                                            color = designColor,
-                                            fontWeight = FontWeight.W300,
-                                            fontFamily = FontFamily.Monospace,
-                                            fontStyle = FontStyle.Normal
-                                        )
-                                        Spacer(Modifier.height(5.dp))
-                                        Text(
-                                            it.author.toString(),
-                                            color = designColor.copy(alpha = 0.7f),
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.W300,
-                                            fontFamily = FontFamily.Monospace,
-                                            fontStyle = FontStyle.Normal
-                                        )
-                                        Spacer(Modifier.height(5.dp))
-                                        Text(
-                                            it.notes,
-                                            style = TextStyle(
-                                               brush = Brush.linearGradient(
-                                                    colors = textColor,
-                                                   start = Offset(offset, 0f),
-                                                   end = Offset(offset + 500f, 0f)
-                                                )
-                                            ),
-                                            maxLines = 2
-                                        )
-                                    }
-                                }
+                }
+
+                // Recent Notes header
+                item {
+                    Row(
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .background(Color(0xFF0B07C4).copy(alpha = 0.4f)),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Recent Notes:",
+                            fontSize = 20.sp,
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = toxicWaste,
+                                    start = Offset(offset, 0f),
+                                    end = Offset(offset + 500f, 1f)
+                                )
+                            )
+                        )
+                    }
+                }
+
+                // Horizontal recent notes row
+                item {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(notes) { note ->
+                            val textColor = remember(note.noteNum) { colorForText() }
+                            val designColor = remember(note.noteNum) { BackgroundColor() }
+                            NoteCard(
+                                note = note,
+                                textColor = textColor,
+                                designColor = designColor,
+                                glowColor = glowColor,
+                                cardBack = cardBack.value,
+                                offset = offset,
+                                onClick = { navController.navigate("noteElement/${note.noteNum}") }
+                            )
+                        }
+                    }
+                }
+
+                item { Spacer(Modifier.height(16.dp)) }
+
+                // All Notes header
+                item {
+                    Row(
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .background(Color(0xFF0B07C4).copy(alpha = 0.4f)),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "All Notes:",
+                            fontSize = 20.sp,
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = neoTokyo,
+                                    start = Offset(offset, 0f),
+                                    end = Offset(offset + 500f, 1f)
+                                )
+                            )
+                        )
+                    }
+                }
+
+                item { Spacer(Modifier.height(10.dp)) }
+
+                // 2-column grid using chunked rows
+                val chunkedNotes = notes.chunked(2)
+                items(chunkedNotes) { rowNotes ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rowNotes.forEach { note ->
+                            val textColor = remember(note.noteNum) { colorForText() }
+                            val designColor = remember(note.noteNum) { BackgroundColor() }
+                            Box(modifier = Modifier.weight(1f)) {
+                                NoteCard(
+                                    note = note,
+                                    textColor = textColor,
+                                    designColor = designColor,
+                                    glowColor = glowColor,
+                                    cardBack = cardBack.value,
+                                    offset = offset,
+                                    onClick = { navController.navigate("noteElement/${note.noteNum}") },
+                                    fillWidth = true
+                                )
                             }
+                        }
+                        // If odd number of notes, fill remaining space
+                        if (rowNotes.size == 1) {
+                            Box(modifier = Modifier.weight(1f))
                         }
                     }
                 }
             }
-        )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = {navController.navigate("noteField")},
+                shape = RoundedCornerShape(100),
+                containerColor = Color(0xFFD9D0A5),
+                contentColor = Color.White,
+                modifier = Modifier.border(2.dp, Color.Magenta, RoundedCornerShape(100))
+            ) {
+                Icon(Icons.Filled.Add, null, tint = Color(0xFFF6075A))
+            }
+        },
+        floatingActionButtonPosition = FabPosition.Center
+    )
+}
+
+// Extracted reusable NoteCard composable
+@Composable
+fun NoteCard(
+    note: com.example.noteapp.DataBase.NoteEntity,
+    textColor: List<Color>,
+    designColor: Color,
+    glowColor: Color,
+    cardBack: Color,
+    offset: Float,
+    onClick: () -> Unit,
+    fillWidth: Boolean = false
+) {
+    val modifier = if (fillWidth) {
+        Modifier
+            .width(250.dp)
+            .height(200.dp)
+            .graphicsLayer(alpha = 0.8f)
+            .padding(8.dp)
+            .border(width = 3.dp, color = glowColor, shape = RoundedCornerShape(16.dp))
+            .background(Color(0x33000000), RoundedCornerShape(16.dp))
+    } else {
+        Modifier
+            .width(195.dp)
+            .height(200.dp)
+            .graphicsLayer(alpha = 0.8f)
+            .padding(8.dp)
+            .border(width = 3.dp, color = glowColor, shape = RoundedCornerShape(16.dp))
+            .background(Color(0x33000000), RoundedCornerShape(16.dp))
     }
 
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = cardBack),
+        modifier = modifier,
+        border = BorderStroke(1.dp, Color.Black)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text("~ Tag:", color = designColor, fontSize = 12.sp)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                note.title,
+                fontSize = 22.sp,
+                color = designColor,
+                fontWeight = FontWeight.W300,
+                fontFamily = FontFamily.Monospace,
+                fontStyle = FontStyle.Normal
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                note.author.toString(),
+                color = designColor.copy(alpha = 0.7f),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.W300,
+                fontFamily = FontFamily.Monospace
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                note.notes,
+                style = TextStyle(
+                    brush = Brush.linearGradient(
+                        colors = textColor,
+                        start = Offset(offset, 0f),
+                        end = Offset(offset + 500f, 0f)
+                    )
+                ),
+                maxLines = 2,
+                fontSize = 14.sp
+            )
+        }
+    }
+}
 
-fun BackgroundColor() : Color {
-    val bgColor : List<Color> = listOf(
+fun BackgroundColor(): Color {
+    return listOf(
         Color(0xFFD000FF),
         Color(0xFFEE2F6C),
         Color(0xFF2396CE),
         Color(0xFFE87B73),
         Color(0xFFF3D900),
-    )
-    return bgColor.random()
+    ).random()
 }
