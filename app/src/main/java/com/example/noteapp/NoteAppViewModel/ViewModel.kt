@@ -36,17 +36,6 @@ class NoteViewModel(private val noteRepo: NoteRepo) : ViewModel() {
         }
     }
 
-    fun setColor() {
-        val background = Color.White
-        viewModelScope.launch {
-            if(Color.Black != Color.Black) {
-                Color.Black
-            } else {
-                Color.White
-            }
-        }
-    }
-
     fun delete(note : NoteEntity) {
         viewModelScope.launch {
             noteRepo.deleteNote(note)
