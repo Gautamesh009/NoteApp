@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -58,6 +59,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -102,35 +104,61 @@ fun MainScreen(viewModel: NoteViewModel, navController: NavController) {
         topBar = {
             TopAppBar(
                 title = {
-                    Row {
+                    val infiniteTransition = rememberInfiniteTransition()
+                    val offset by infiniteTransition.animateFloat(
+                        initialValue = 0f,
+                        targetValue = 1000f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(6000, easing = LinearEasing) // slow shimmer
+                        )
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Text(
                             "My",
-                            fontSize = 28.sp,
+                            fontSize = 34.sp,
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.W200,
-                            color = Color.White
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(Color.Cyan, Color.Magenta, Color.Blue),
+                                    start = Offset(offset, 0f),
+                                    end = Offset(offset + 500f, 0f)
+                                ),
+                                shadow = Shadow(
+                                    color = Color.Cyan.copy(alpha = 0.9f),
+                                    blurRadius = 18f,
+                                    offset = Offset(2f, 2f)
+                                )
+                            )
                         )
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             "Note",
-                            fontSize = 28.sp,
+                            fontSize = 34.sp,
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.W200,
-                            color = Color.Cyan,
-                            modifier = Modifier.shadow(elevation = 4.dp, ambientColor = Color.White)
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(Color.Magenta, Color.Cyan, Color(0xFFDA00FF)),
+                                    start = Offset(offset, 0f),
+                                    end = Offset(offset + 500f, 0f)
+                                ),
+                                shadow = Shadow(
+                                    color = Color.Magenta.copy(alpha = 0.9f),
+                                    blurRadius = 20f,
+                                    offset = Offset(2f, 2f)
+                                )
+                            )
                         )
-                    }
-                },
-                actions = {
-                    IconButton({ navController.navigate("noteField") }) {
-                        Icon(Icons.Outlined.Add, null, tint = Color.White)
-                    }
-                    IconButton({}) {
-                        Icon(Icons.Filled.Delete, null, tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = topAppBarColor.value
+                    containerColor = Color(0xFF021F38) // dark base so neon pops
                 )
             )
         },
@@ -283,16 +311,36 @@ fun MainScreen(viewModel: NoteViewModel, navController: NavController) {
             }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {navController.navigate("noteField")},
-                shape = RoundedCornerShape(100),
-                containerColor = Color(0xFFD9D0A5),
+            FloatingActionButton(
+                onClick = { navController.navigate("noteField") },
+                shape = RoundedCornerShape(50), // circular but stylized
+                containerColor = Color(0xFF0D324B), // dark base
                 contentColor = Color.White,
-                modifier = Modifier.border(2.dp, Color.Magenta, RoundedCornerShape(100))
+                modifier = Modifier
+                    .border(
+                        width = 3.dp,
+                        brush = Brush.linearGradient(
+                            colors = listOf(Color.Cyan, Color.Magenta),
+                            start = Offset(0f, 0f),
+                            end = Offset(100f, 100f)
+                        ),
+                        shape = RoundedCornerShape(50)
+                    )
+                    .shadow(
+                        elevation = 12.dp,
+                        ambientColor = Color.Magenta,
+                        spotColor = Color.Cyan
+                    )
             ) {
-                Icon(Icons.Filled.Add, null, tint = Color(0xFFF6075A))
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Add Note",
+                    tint = Color(0xFFF6075A), // neon pink accent
+                    modifier = Modifier.size(28.dp)
+                )
             }
         },
-        floatingActionButtonPosition = FabPosition.Center
+        floatingActionButtonPosition = FabPosition.Center // bottom-center
     )
 }
 
