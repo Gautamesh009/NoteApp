@@ -383,7 +383,7 @@ fun NoteCard(
             Spacer(Modifier.height(4.dp))
             Text(
                 note.title,
-                fontSize = 22.sp,
+                fontSize = 24.sp,
                 color = designColor,
                 fontWeight = FontWeight.W300,
                 fontFamily = FontFamily.Monospace,

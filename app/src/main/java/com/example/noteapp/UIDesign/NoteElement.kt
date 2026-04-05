@@ -2,12 +2,19 @@
 
 package com.example.noteapp.UIDesign
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,12 +23,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -33,8 +47,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -52,6 +70,9 @@ import androidx.compose.ui.util.normalizedAngleCos
 import androidx.navigation.NavController
 import com.example.noteapp.NoteAppViewModel.NoteViewModel
 import com.example.noteapp.R
+import com.example.noteapp.UIDesign.Colors.cyberpunkClassic
+import com.example.noteapp.UIDesign.Colors.ghostShell
+import com.example.noteapp.UIDesign.Colors.neoTokyo
 
 @Composable
 fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum: Int) {
@@ -69,6 +90,7 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
             topBar = {
                 TopAppBar(
                     title = {
+
                         val infiniteTransition = rememberInfiniteTransition()
                         val offset by infiniteTransition.animateFloat(
                             initialValue = 0f,
@@ -156,6 +178,14 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                 )
             },
             content = {
+                val infiniteTransition = rememberInfiniteTransition()
+                val offset by infiniteTransition.animateFloat(
+                    initialValue = 0f,
+                    targetValue = 1000f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(2000, easing = LinearEasing)
+                    )
+                )
                 Box(
                     Modifier.fillMaxSize()
                         .graphicsLayer(alpha = .8f),
@@ -175,22 +205,255 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Top
                 ) {
-                    Text(note?.title ?: String(), fontSize = 50.sp, fontWeight = FontWeight.W500)
+                    // Title with neon gradient + glow
+                    Text(
+                        text = note?.title ?: "",
+                        fontSize = 50.sp,
+                        fontWeight = FontWeight.W700,
+                        style = TextStyle(
+                            brush = Brush.linearGradient(
+                                colors = listOf(Color.Cyan, Color.Magenta, Color.Blue)
+                            ),
+                            shadow = Shadow(
+                                color = Color.Magenta.copy(alpha = 0.8f),
+                                offset = Offset(2f, 2f),
+                                blurRadius = 12f
+                            )
+                        )
+                    )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    note.author?.let { text ->
-                        Text("Author Name: ${note.author}",
-                            fontSize = 14.sp
-                        ) }
+                    // Author name with subtle glow
+                    note.author?.let { author ->
+                        Text(
+                            text = "Author Name: $author",
+                            fontSize = 16.sp,
+                            color = Color(0xFF00FFFF), // neon cyan
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = neoTokyo,
+                                    start = Offset(offset, 0f),
+                                    end = Offset(offset + 500f, 0f)
+                                ),
+                                shadow = Shadow(
+                                    color = Color.Cyan.copy(alpha = 0.6f),
+                                    offset = Offset(1f, 1f),
+                                    blurRadius = 8f
+                                )
+                            )
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    Text(note.notes, fontSize = 24.sp)
+                    LazyColumn {
+                        item {
+                            Text(
+                                text = note.notes,
+                                fontSize = 24.sp,
+                                color = Color(0xFFE040FB), // neon purple
+                                style = TextStyle(
+                                    shadow = Shadow(
+                                        color = Color(0xFF9C27B0).copy(alpha = 0.7f),
+                                        offset = Offset(1f, 1f),
+                                        blurRadius = 10f
+                                    ),
+                                    brush = Brush.sweepGradient(
+                                        colors = ghostShell,
+                                        center = Offset(offset, 0f)
+                                    )
+                                )
+                            )
+                        }
+                    }
                 }
-            }
+            },
+            floatingActionButton = {
+                CyberpunkExpandableFab(
+                    onDelete = {
+                        viewModel.delete(currentValue)
+                        navController.navigate("mainScreen")
+                    },
+                    onUpdate = {
+                        navController.navigate("updateNote/${note.noteNum}")
+                    }
+                )
+            },
+
+            floatingActionButtonPosition = FabPosition.Center
         )
-
     }
+}
 
+
+@Composable
+fun CyberpunkExpandableFab(
+    onDelete: () -> Unit,
+    onUpdate: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val transition = updateTransition(targetState = expanded, label = "fab_transition")
+
+    // Main FAB rotation
+    val mainRotation by transition.animateFloat(
+        label = "main_rotation",
+        transitionSpec = { spring(dampingRatio = 0.6f, stiffness = 300f) }
+    ) { if (it) 45f else 0f }
+
+    // Scale for child FABs
+    val childScale by transition.animateFloat(
+        label = "child_scale",
+        transitionSpec = { spring(dampingRatio = 0.5f, stiffness = 400f) }
+    ) { if (it) 1f else 0f }
+
+    // Alpha for child FABs
+    val childAlpha by transition.animateFloat(
+        label = "child_alpha",
+        transitionSpec = { tween(150) }
+    ) { if (it) 1f else 0f }
+
+    // Offset for left (delete) button
+    val deleteOffset by transition.animateDp(
+        label = "delete_offset",
+        transitionSpec = { spring(dampingRatio = 0.55f, stiffness = 380f) }
+    ) { if (it) (-80).dp else 0.dp }
+
+    // Offset for right (update) button
+    val updateOffset by transition.animateDp(
+        label = "update_offset",
+        transitionSpec = { spring(dampingRatio = 0.55f, stiffness = 380f) }
+    ) { if (it) 80.dp else 0.dp }
+
+    // Neon pulse animation for main FAB
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow_alpha"
+    )
+
+    Box(contentAlignment = Alignment.Center) {
+
+        // DELETE button (left)
+        Box(
+            modifier = Modifier
+                .offset(x = deleteOffset)
+                .alpha(childAlpha)
+                .scale(scale = childScale),
+            contentAlignment = Alignment.Center
+        ) {
+            // Glow ring
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(Color.Red.copy(alpha = 0.4f), Color.Transparent)
+                        ),
+                        shape = CircleShape
+                    )
+            )
+            FloatingActionButton(
+                onClick = { expanded = false; onDelete() },
+                containerColor = Color(0xFF1A0010),
+                contentColor = Color.Red,
+                elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                modifier = Modifier
+                    .size(48.dp)
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.linearGradient(listOf(Color.Red, Color(0xFFFF006E))),
+                        shape = CircleShape
+                    )
+            ) {
+                Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = Color(0xFFFF1744))
+            }
+        }
+
+        // UPDATE button (right)
+        Box(
+            modifier = Modifier
+                .offset(x = updateOffset)
+                .alpha(childAlpha)
+                .scale(childScale),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(Color.Cyan.copy(alpha = 0.3f), Color.Transparent)
+                        ),
+                        shape = CircleShape
+                    )
+            )
+            FloatingActionButton(
+                onClick = { expanded = false; onUpdate() },
+                containerColor = Color(0xFF001A1A),
+                contentColor = Color.Cyan,
+                elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                modifier = Modifier
+                    .size(48.dp)
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.linearGradient(listOf(Color.Cyan, Color(0xFF00E5FF))),
+                        shape = CircleShape
+                    )
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.upgrade),
+                    contentDescription = "Update",
+                    tint = Color(0xFF00E5FF)
+                )
+            }
+        }
+
+        // MAIN FAB (center) — expands/collapses
+        Box(contentAlignment = Alignment.Center) {
+            // Animated neon glow ring behind main FAB
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                Color.Magenta.copy(alpha = glowAlpha * 0.35f),
+                                Color.Transparent
+                            )
+                        ),
+                        shape = CircleShape
+                    )
+            )
+            FloatingActionButton(
+                onClick = { expanded = !expanded },
+                containerColor = Color(0xFF0D0020),
+                contentColor = Color.Magenta,
+                elevation = FloatingActionButtonDefaults.elevation(8.dp),
+                modifier = Modifier
+                    .size(58.dp)
+                    .rotate(mainRotation)
+                    .border(
+                        width = 1.5.dp,
+                        brush = Brush.sweepGradient(
+                            listOf(Color.Cyan, Color.Magenta, Color(0xFFDA00FF), Color.Cyan)
+                        ),
+                        shape = CircleShape
+                    )
+            ) {
+                Text(
+                    text = if (expanded) "✕" else "⚙",
+                    fontSize = 22.sp,
+                    color = if (expanded) Color.White else Color.Magenta,
+                    fontFamily = FontFamily.Monospace
+                )
+            }
+        }
+    }
 }
