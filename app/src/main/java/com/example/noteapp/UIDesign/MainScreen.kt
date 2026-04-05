@@ -9,7 +9,6 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,22 +27,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -81,7 +74,7 @@ import com.example.noteapp.UIDesign.Colors.toxicWaste
 fun MainScreen(viewModel: NoteViewModel, navController: NavController) {
     val notes by viewModel.notes.collectAsState()
     val topAppBarColor = remember { mutableStateOf(Color(0xFF021F38)) }
-    val cardBack = remember { mutableStateOf(Color(0xFF0D324B)) }
+    val cardBack = remember { mutableStateOf(Color(0xFF6B00FF)) }
 
     val infiniteTransition = rememberInfiniteTransition()
     val offset by infiniteTransition.animateFloat(
@@ -165,7 +158,8 @@ fun MainScreen(viewModel: NoteViewModel, navController: NavController) {
         content = { paddingValues ->
 
             // Background
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize()
+                .graphicsLayer(alpha = .8f)) {
                 Image(
                     painter = painterResource(id = R.drawable.img),
                     contentDescription = "Background",
@@ -186,8 +180,8 @@ fun MainScreen(viewModel: NoteViewModel, navController: NavController) {
                 item {
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .background(Color(0xFF0B07C4).copy(alpha = 0.6f)),
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -240,7 +234,7 @@ fun MainScreen(viewModel: NoteViewModel, navController: NavController) {
                             NoteCard(
                                 note = note,
                                 textColor = textColor,
-                                designColor = designColor,
+                                designColor = designColor.copy(alpha = 1f),
                                 glowColor = glowColor,
                                 cardBack = cardBack.value,
                                 offset = offset,
@@ -360,7 +354,6 @@ fun NoteCard(
         Modifier
             .width(250.dp)
             .height(200.dp)
-            .graphicsLayer(alpha = 0.8f)
             .padding(8.dp)
             .border(width = 3.dp, color = glowColor, shape = RoundedCornerShape(16.dp))
             .background(Color(0x33000000), RoundedCornerShape(16.dp))
@@ -368,7 +361,6 @@ fun NoteCard(
         Modifier
             .width(195.dp)
             .height(200.dp)
-            .graphicsLayer(alpha = 0.8f)
             .padding(8.dp)
             .border(width = 3.dp, color = glowColor, shape = RoundedCornerShape(16.dp))
             .background(Color(0x33000000), RoundedCornerShape(16.dp))
@@ -376,7 +368,7 @@ fun NoteCard(
 
     Card(
         onClick = onClick,
-        colors = CardDefaults.cardColors(containerColor = cardBack),
+        colors = CardDefaults.cardColors(containerColor = cardBack.copy(alpha = 0.4f)),
         modifier = modifier,
         border = BorderStroke(1.dp, Color.Black)
     ) {

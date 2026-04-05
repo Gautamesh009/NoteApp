@@ -41,7 +41,8 @@ fun AppNavHost() {
     val viewModel : NoteViewModel = viewModel(factory = NoteViewModel.Factory)
 
     NavHost(navController, startDestination = "mainScreen") {
-        composable("mainScreen") {
+        composable("mainScreen",
+            ) {
             MainScreen(viewModel, navController)
         }
         composable("noteField") {
