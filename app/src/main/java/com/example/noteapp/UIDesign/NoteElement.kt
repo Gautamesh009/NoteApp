@@ -2,6 +2,8 @@
 
 package com.example.noteapp.UIDesign
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -76,11 +78,18 @@ import com.example.noteapp.NoteAppViewModel.NoteViewModel
 import com.example.noteapp.R
 import com.example.noteapp.UIDesign.Colors.ghostShell
 import com.example.noteapp.UIDesign.Colors.neoTokyo
+import com.example.noteapp.UIDesign.Transition.NeonColors
+import com.example.noteapp.UIDesign.Transition.neonBlurEffect
 
 @Composable
-fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum: Int) {
+fun NoteElement(
+    viewModel: NoteViewModel,
+    navController: NavController,
+    noteNum: Int
+) {
     val notes = viewModel.notes.collectAsState()
     val note = notes.value.find { it.noteNum == noteNum }
+
 
     if (note == null) {
         Text("Loading note")
@@ -198,6 +207,12 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                 Box(
                     Modifier
                         .fillMaxSize()
+                        .background(Color(0xFF0A0A0F))
+                        .neonBlurEffect(
+                            visible = true,
+                            glowColor = NeonColors.Cyan, // 🔵 change per screen
+                            durationMs = 2200
+                        )
                         .graphicsLayer(alpha = .8f),
                     contentAlignment = Alignment.Center
                 ) {

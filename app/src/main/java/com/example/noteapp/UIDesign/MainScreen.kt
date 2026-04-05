@@ -2,6 +2,8 @@
 
 package com.example.noteapp.UIDesign
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -69,9 +71,14 @@ import com.example.noteapp.UIDesign.Colors.colorForText
 import com.example.noteapp.UIDesign.Colors.cyberpunkClassic
 import com.example.noteapp.UIDesign.Colors.neoTokyo
 import com.example.noteapp.UIDesign.Colors.toxicWaste
+import com.example.noteapp.UIDesign.Transition.NeonColors
+import com.example.noteapp.UIDesign.Transition.neonBlurEffect
 
 @Composable
-fun MainScreen(viewModel: NoteViewModel, navController: NavController) {
+fun MainScreen(
+    viewModel: NoteViewModel,
+    navController: NavController
+) {
     val notes by viewModel.notes.collectAsState()
     val topAppBarColor = remember { mutableStateOf(Color(0xFF021F38)) }
     val cardBack = remember { mutableStateOf(Color(0xFF6B00FF)) }
@@ -159,6 +166,12 @@ fun MainScreen(viewModel: NoteViewModel, navController: NavController) {
 
             // Background
             Box(modifier = Modifier.fillMaxSize()
+                .background(Color(0xFF0A0A0F))
+                .neonBlurEffect(
+                    visible = true,
+                    glowColor = NeonColors.Cyan, // 🔵 change per screen
+                    durationMs = 2200
+                )
                 .graphicsLayer(alpha = .8f)) {
                 Image(
                     painter = painterResource(id = R.drawable.img),

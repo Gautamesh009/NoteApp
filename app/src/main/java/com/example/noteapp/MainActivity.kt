@@ -1,14 +1,11 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.example.noteapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -34,7 +31,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun AppNavHost() {
     val navController : NavHostController = rememberNavController()
@@ -42,7 +38,7 @@ fun AppNavHost() {
 
     NavHost(navController, startDestination = "mainScreen") {
         composable("mainScreen",
-            ) {
+        ) {
             MainScreen(viewModel, navController)
         }
         composable("noteField") {
@@ -54,7 +50,7 @@ fun AppNavHost() {
                     type = NavType.IntType
                 }
             )
-            ) {
+        ) {
             val noteNum = it.arguments!!.getInt("noteNum")
             NoteElement(viewModel, navController, noteNum)
         }
