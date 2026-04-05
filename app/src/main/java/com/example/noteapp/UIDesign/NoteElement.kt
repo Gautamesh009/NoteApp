@@ -15,6 +15,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,8 +28,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
@@ -51,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
@@ -62,15 +66,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.normalizedAngleCos
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.noteapp.NoteAppViewModel.NoteViewModel
 import com.example.noteapp.R
-import com.example.noteapp.UIDesign.Colors.cyberpunkClassic
 import com.example.noteapp.UIDesign.Colors.ghostShell
 import com.example.noteapp.UIDesign.Colors.neoTokyo
 
@@ -81,23 +84,37 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
 
     if (note == null) {
         Text("Loading note")
-    return
-}
+        return
+    }
 
     note.let { currentValue ->
         val topAppBarColor = remember { mutableStateOf(Color(0xFF022F54)) }
+        var showDeleteDialog by remember { mutableStateOf(false) }
+
+        // ✅ Dialog placed here, outside Scaffold
+        if (showDeleteDialog) {
+            CyberpunkDeleteDialog(
+                onConfirm = {
+                    showDeleteDialog = false
+                    viewModel.delete(currentValue)
+                    navController.navigate("mainScreen")
+                },
+                onDismiss = { showDeleteDialog = false }
+            )
+        }
+
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = {
-
-                        val infiniteTransition = rememberInfiniteTransition()
+                        val infiniteTransition = rememberInfiniteTransition(label = "title")
                         val offset by infiniteTransition.animateFloat(
                             initialValue = 0f,
                             targetValue = 1000f,
                             animationSpec = infiniteRepeatable(
-                                animation = tween(6000, easing = LinearEasing) // slow shimmer
-                            )
+                                animation = tween(6000, easing = LinearEasing)
+                            ),
+                            label = "title_offset"
                         )
 
                         Row(
@@ -145,49 +162,42 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color(0xFF021F38) // dark base so neon pops
+                        containerColor = Color(0xFF021F38)
                     ),
-
+                    // ✅ Back arrow restored
                     navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                navController.navigate("mainScreen")
-                            }
-                        ) {
+                        IconButton(onClick = { navController.navigate("mainScreen") }) {
                             Icon(Icons.Filled.ArrowBack, null, tint = Color.White)
                         }
                     },
-
+                    // ✅ Update + Delete icons restored, delete now shows dialog
                     actions = {
-                        IconButton({
-                            navController.navigate("updateNote/${note.noteNum}")
-                        }) {
-                            Icon(painter = painterResource(R.drawable.upgrade),
-                                null, tint = Color.White)
-                        }
-                        IconButton({
-                            viewModel.delete(currentValue)
-                            navController.navigate("mainScreen")
-                        }) {
+                        IconButton(onClick = { navController.navigate("updateNote/${note.noteNum}") }) {
                             Icon(
-                                Icons.Filled.Delete,
-                                null, tint = Color.White
+                                painter = painterResource(R.drawable.upgrade),
+                                null,
+                                tint = Color.White
                             )
                         }
-                    },
+                        IconButton(onClick = { showDeleteDialog = true }) {
+                            Icon(Icons.Filled.Delete, null, tint = Color.White)
+                        }
+                    }
                 )
             },
             content = {
-                val infiniteTransition = rememberInfiniteTransition()
+                val infiniteTransition = rememberInfiniteTransition(label = "content")
                 val offset by infiniteTransition.animateFloat(
                     initialValue = 0f,
                     targetValue = 1000f,
                     animationSpec = infiniteRepeatable(
                         animation = tween(2000, easing = LinearEasing)
-                    )
+                    ),
+                    label = "content_offset"
                 )
                 Box(
-                    Modifier.fillMaxSize()
+                    Modifier
+                        .fillMaxSize()
                         .graphicsLayer(alpha = .8f),
                     contentAlignment = Alignment.Center
                 ) {
@@ -205,9 +215,8 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Top
                 ) {
-                    // Title with neon gradient + glow
                     Text(
-                        text = note?.title ?: "",
+                        text = note.title ?: "",
                         fontSize = 50.sp,
                         fontWeight = FontWeight.W700,
                         style = TextStyle(
@@ -224,12 +233,10 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Author name with subtle glow
                     note.author?.let { author ->
                         Text(
                             text = "Author Name: $author",
                             fontSize = 16.sp,
-                            color = Color(0xFF00FFFF), // neon cyan
                             style = TextStyle(
                                 brush = Brush.linearGradient(
                                     colors = neoTokyo,
@@ -252,7 +259,6 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
                             Text(
                                 text = note.notes,
                                 fontSize = 24.sp,
-                                color = Color(0xFFE040FB), // neon purple
                                 style = TextStyle(
                                     shadow = Shadow(
                                         color = Color(0xFF9C27B0).copy(alpha = 0.7f),
@@ -271,16 +277,10 @@ fun NoteElement(viewModel: NoteViewModel, navController: NavController, noteNum:
             },
             floatingActionButton = {
                 CyberpunkExpandableFab(
-                    onDelete = {
-                        viewModel.delete(currentValue)
-                        navController.navigate("mainScreen")
-                    },
-                    onUpdate = {
-                        navController.navigate("updateNote/${note.noteNum}")
-                    }
+                    onDelete = { showDeleteDialog = true },
+                    onUpdate = { navController.navigate("updateNote/${note.noteNum}") }
                 )
             },
-
             floatingActionButtonPosition = FabPosition.Center
         )
     }
@@ -296,37 +296,31 @@ fun CyberpunkExpandableFab(
 
     val transition = updateTransition(targetState = expanded, label = "fab_transition")
 
-    // Main FAB rotation
     val mainRotation by transition.animateFloat(
         label = "main_rotation",
         transitionSpec = { spring(dampingRatio = 0.6f, stiffness = 300f) }
     ) { if (it) 45f else 0f }
 
-    // Scale for child FABs
     val childScale by transition.animateFloat(
         label = "child_scale",
         transitionSpec = { spring(dampingRatio = 0.5f, stiffness = 400f) }
     ) { if (it) 1f else 0f }
 
-    // Alpha for child FABs
     val childAlpha by transition.animateFloat(
         label = "child_alpha",
         transitionSpec = { tween(150) }
     ) { if (it) 1f else 0f }
 
-    // Offset for left (delete) button
     val deleteOffset by transition.animateDp(
         label = "delete_offset",
         transitionSpec = { spring(dampingRatio = 0.55f, stiffness = 380f) }
     ) { if (it) (-80).dp else 0.dp }
 
-    // Offset for right (update) button
     val updateOffset by transition.animateDp(
         label = "update_offset",
         transitionSpec = { spring(dampingRatio = 0.55f, stiffness = 380f) }
     ) { if (it) 80.dp else 0.dp }
 
-    // Neon pulse animation for main FAB
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val glowAlpha by infiniteTransition.animateFloat(
         initialValue = 0.4f,
@@ -348,7 +342,6 @@ fun CyberpunkExpandableFab(
                 .scale(scale = childScale),
             contentAlignment = Alignment.Center
         ) {
-            // Glow ring
             Box(
                 modifier = Modifier
                     .size(56.dp)
@@ -415,9 +408,8 @@ fun CyberpunkExpandableFab(
             }
         }
 
-        // MAIN FAB (center) — expands/collapses
+        // MAIN FAB (center)
         Box(contentAlignment = Alignment.Center) {
-            // Animated neon glow ring behind main FAB
             Box(
                 modifier = Modifier
                     .size(72.dp)
@@ -453,6 +445,210 @@ fun CyberpunkExpandableFab(
                     color = if (expanded) Color.White else Color.Magenta,
                     fontFamily = FontFamily.Monospace
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun CyberpunkDeleteDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "dialog_pulse")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.9f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "border_glow"
+    )
+    val scanlineOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 300f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500, easing = LinearEasing)
+        ),
+        label = "scanline"
+    )
+
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .background(Color(0xFF040010), shape = RoundedCornerShape(4.dp))
+                .border(
+                    width = 1.5.dp,
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color.Red.copy(alpha = glowAlpha),
+                            Color.Magenta.copy(alpha = glowAlpha),
+                            Color.Red.copy(alpha = glowAlpha)
+                        )
+                    ),
+                    shape = RoundedCornerShape(4.dp)
+                )
+        ) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.White.copy(alpha = 0.03f),
+                                Color.Transparent
+                            ),
+                            startY = scanlineOffset,
+                            endY = scanlineOffset + 80f
+                        )
+                    )
+            )
+
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "⚠",
+                    fontSize = 36.sp,
+                    style = TextStyle(
+                        shadow = Shadow(
+                            color = Color.Red.copy(alpha = 0.9f),
+                            blurRadius = 24f,
+                            offset = Offset(0f, 0f)
+                        )
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "DELETE NOTE",
+                    fontSize = 18.sp,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 4.sp,
+                    style = TextStyle(
+                        brush = Brush.linearGradient(
+                            colors = listOf(Color.Red, Color(0xFFFF006E), Color.Red)
+                        ),
+                        shadow = Shadow(
+                            color = Color.Red.copy(alpha = 0.7f),
+                            blurRadius = 16f,
+                            offset = Offset(0f, 0f)
+                        )
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Red.copy(alpha = 0.6f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "This action is irreversible.\nNote will be permanently wiped.",
+                    fontSize = 13.sp,
+                    fontFamily = FontFamily.Monospace,
+                    color = Color(0xFFAAAAAA),
+                    textAlign = TextAlign.Center,
+                    lineHeight = 20.sp
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp)
+                            .background(Color(0xFF0A0A1A), shape = RoundedCornerShape(2.dp))
+                            .border(
+                                width = 1.dp,
+                                brush = Brush.linearGradient(
+                                    listOf(
+                                        Color.Cyan.copy(alpha = 0.5f),
+                                        Color(0xFF00E5FF).copy(alpha = 0.5f)
+                                    )
+                                ),
+                                shape = RoundedCornerShape(2.dp)
+                            )
+                            .clickable { onDismiss() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "ABORT",
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 3.sp,
+                            color = Color(0xFF00E5FF)
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp)
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(Color(0xFF3D0000), Color(0xFF1A0010))
+                                ),
+                                shape = RoundedCornerShape(2.dp)
+                            )
+                            .border(
+                                width = 1.dp,
+                                brush = Brush.linearGradient(
+                                    listOf(
+                                        Color.Red.copy(alpha = glowAlpha),
+                                        Color(0xFFFF006E).copy(alpha = glowAlpha)
+                                    )
+                                ),
+                                shape = RoundedCornerShape(2.dp)
+                            )
+                            .clickable { onConfirm() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "WIPE",
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 3.sp,
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(Color.Red, Color(0xFFFF006E))
+                                ),
+                                shadow = Shadow(
+                                    color = Color.Red.copy(alpha = 0.8f),
+                                    blurRadius = 12f,
+                                    offset = Offset(0f, 0f)
+                                )
+                            )
+                        )
+                    }
+                }
             }
         }
     }
