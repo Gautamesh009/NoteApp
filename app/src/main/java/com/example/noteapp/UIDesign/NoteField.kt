@@ -3,11 +3,16 @@
 package com.example.noteapp.UIDesign
 
 import android.R
+import android.icu.text.Transliterator
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring.DampingRatioMediumBouncy
+import androidx.compose.animation.core.Spring.StiffnessLow
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,10 +27,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
@@ -33,6 +40,8 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -43,6 +52,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,12 +61,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -79,6 +91,8 @@ import com.example.noteapp.UIDesign.Colors.toxicWaste
 //@Preview
 @Composable
 fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
+    val note = viewModel.notes.collectAsState()
+
     val transition = rememberInfiniteTransition()
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("Unknown") }
@@ -113,49 +127,83 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
         topBar = {
             TopAppBar(
                 title = {
-                    Row {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text("Create note",
                             fontSize = 28.sp,
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.W200,
                             fontStyle = FontStyle.Normal,
-                            color = Color.White
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton({
-                        navController.popBackStack()
-                    }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            null
-                            , tint = Color.White)
-                    }
-                },
-
-                actions = {
-                    IconButton(onClick = {
-                        val save = NoteEntity(
-                            title = titleTextField.value,
-                            author = authorTextField.value,
-                            notes = noteTextField.value,
-                            tag =selectedOption
-                        )
-                        val insertNote = viewModel.insert(save)
-                        navController.popBackStack()
-                    }) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_menu_save),
-                            null, tint = Color.White
+                            color = Color.White,
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(Color.Cyan, Color.Magenta, Color.Blue),
+                                    start = Offset(0f, 0f),
+                                    end = Offset(500f, 0f)
+                                ),
+                                shadow = Shadow(
+                                    color = Color.Cyan.copy(alpha = 0.9f),
+                                    blurRadius = 18f
+                                )
+                            )
                         )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor =topAppBarColor.value
+                    containerColor = topAppBarColor.value
                 )
             )
         },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    viewModel.insert(
+                        NoteEntity(
+                            title = titleTextField.value,
+                            author = authorTextField.value,
+                            notes = noteTextField.value,
+                            tag = selectedOption
+                        )
+                    )
+                    navController.navigate("MainScreen")
+                },
+                containerColor = Color.Transparent, // let custom background show
+                shape = RoundedCornerShape(20.dp)   // futuristic rounded square
+            ) {
+                Box(
+                    Modifier
+                        .size(70.dp)
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(Color.Cyan, Color.Magenta, Color.Blue),
+                                start = Offset(0f, 0f),
+                                end = Offset(200f, 200f)
+                            ),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .shadow(
+                            elevation = 20.dp,
+                            ambientColor = Color.Cyan,
+                            spotColor = Color.Magenta,
+                            shape = RoundedCornerShape(20.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Create,
+                        contentDescription = "Save Note",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
+        }
+        ,
+        floatingActionButtonPosition = FabPosition.Center,
         content = {
             Box(modifier = Modifier
                 .fillMaxSize()
