@@ -75,7 +75,7 @@ import com.example.noteapp.UIDesign.Colors.toxicWaste
 @Composable
 fun MainScreen(
     viewModel: NoteViewModel,
-    navController: NavController,
+    navController: NavController
 ) {
     val notes by viewModel.notes.collectAsState()
     val topAppBarColor = remember { mutableStateOf(Color(0xFF021F38)) }
