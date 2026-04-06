@@ -78,8 +78,6 @@ import com.example.noteapp.NoteAppViewModel.NoteViewModel
 import com.example.noteapp.R
 import com.example.noteapp.UIDesign.Colors.ghostShell
 import com.example.noteapp.UIDesign.Colors.neoTokyo
-import com.example.noteapp.UIDesign.Transition.NeonColors
-import com.example.noteapp.UIDesign.Transition.neonBlurEffect
 
 @Composable
 fun NoteElement(
@@ -90,7 +88,6 @@ fun NoteElement(
     val notes = viewModel.notes.collectAsState()
     val note = notes.value.find { it.noteNum == noteNum }
 
-
     if (note == null) {
         Text("Loading note")
         return
@@ -100,7 +97,6 @@ fun NoteElement(
         val topAppBarColor = remember { mutableStateOf(Color(0xFF022F54)) }
         var showDeleteDialog by remember { mutableStateOf(false) }
 
-        // ✅ Dialog placed here, outside Scaffold
         if (showDeleteDialog) {
             CyberpunkDeleteDialog(
                 onConfirm = {
@@ -173,13 +169,11 @@ fun NoteElement(
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                         containerColor = Color(0xFF021F38)
                     ),
-                    // ✅ Back arrow restored
                     navigationIcon = {
                         IconButton(onClick = { navController.navigate("mainScreen") }) {
                             Icon(Icons.Filled.ArrowBack, null, tint = Color.White)
                         }
                     },
-                    // ✅ Update + Delete icons restored, delete now shows dialog
                     actions = {
                         IconButton(onClick = { navController.navigate("updateNote/${note.noteNum}") }) {
                             Icon(
@@ -208,11 +202,6 @@ fun NoteElement(
                     Modifier
                         .fillMaxSize()
                         .background(Color(0xFF0A0A0F))
-                        .neonBlurEffect(
-                            visible = true,
-                            glowColor = NeonColors.Cyan, // 🔵 change per screen
-                            durationMs = 2200
-                        )
                         .graphicsLayer(alpha = .8f),
                     contentAlignment = Alignment.Center
                 ) {
@@ -249,6 +238,15 @@ fun NoteElement(
                     Spacer(modifier = Modifier.height(10.dp))
 
                     note.author?.let { author ->
+                        val infiniteTransition = rememberInfiniteTransition(label = "author")
+                        val offset by infiniteTransition.animateFloat(
+                            initialValue = 0f,
+                            targetValue = 1000f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(2000, easing = LinearEasing)
+                            ),
+                            label = "author_offset"
+                        )
                         Text(
                             text = "Author Name: $author",
                             fontSize = 16.sp,
@@ -271,6 +269,15 @@ fun NoteElement(
 
                     LazyColumn {
                         item {
+                            val infiniteTransition = rememberInfiniteTransition(label = "notes")
+                            val offset by infiniteTransition.animateFloat(
+                                initialValue = 0f,
+                                targetValue = 1000f,
+                                animationSpec = infiniteRepeatable(
+                                    animation = tween(2000, easing = LinearEasing)
+                                ),
+                                label = "notes_offset"
+                            )
                             Text(
                                 text = note.notes,
                                 fontSize = 24.sp,

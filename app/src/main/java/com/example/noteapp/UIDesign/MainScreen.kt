@@ -71,13 +71,11 @@ import com.example.noteapp.UIDesign.Colors.colorForText
 import com.example.noteapp.UIDesign.Colors.cyberpunkClassic
 import com.example.noteapp.UIDesign.Colors.neoTokyo
 import com.example.noteapp.UIDesign.Colors.toxicWaste
-import com.example.noteapp.UIDesign.Transition.NeonColors
-import com.example.noteapp.UIDesign.Transition.neonBlurEffect
 
 @Composable
 fun MainScreen(
     viewModel: NoteViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
     val notes by viewModel.notes.collectAsState()
     val topAppBarColor = remember { mutableStateOf(Color(0xFF021F38)) }
@@ -158,7 +156,7 @@ fun MainScreen(
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFF021F38) // dark base so neon pops
+                    containerColor = Color(0xFF021F38)
                 )
             )
         },
@@ -167,11 +165,6 @@ fun MainScreen(
             // Background
             Box(modifier = Modifier.fillMaxSize()
                 .background(Color(0xFF0A0A0F))
-                .neonBlurEffect(
-                    visible = true,
-                    glowColor = NeonColors.Cyan, // 🔵 change per screen
-                    durationMs = 2200
-                )
                 .graphicsLayer(alpha = .8f)) {
                 Image(
                     painter = painterResource(id = R.drawable.img),
@@ -320,8 +313,8 @@ fun MainScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate("noteField") },
-                shape = RoundedCornerShape(50), // circular but stylized
-                containerColor = Color(0xFF0D324B), // dark base
+                shape = RoundedCornerShape(50),
+                containerColor = Color(0xFF0D324B),
                 contentColor = Color.White,
                 modifier = Modifier
                     .border(
@@ -342,16 +335,15 @@ fun MainScreen(
                 Icon(
                     imageVector = Icons.Filled.Add,
                     contentDescription = "Add Note",
-                    tint = Color(0xFFF6075A), // neon pink accent
+                    tint = Color(0xFFF6075A),
                     modifier = Modifier.size(28.dp)
                 )
             }
         },
-        floatingActionButtonPosition = FabPosition.Center // bottom-center
+        floatingActionButtonPosition = FabPosition.Center
     )
 }
 
-// Extracted reusable NoteCard composable
 @Composable
 fun NoteCard(
     note: com.example.noteapp.DataBase.NoteEntity,
