@@ -168,24 +168,7 @@ fun NoteElement(
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                         containerColor = Color(0xFF021F38)
-                    ),
-                    navigationIcon = {
-                        IconButton(onClick = { navController.navigate("mainScreen") }) {
-                            Icon(Icons.Filled.ArrowBack, null, tint = Color.White)
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { navController.navigate("updateNote/${note.noteNum}") }) {
-                            Icon(
-                                painter = painterResource(R.drawable.upgrade),
-                                null,
-                                tint = Color.White
-                            )
-                        }
-                        IconButton(onClick = { showDeleteDialog = true }) {
-                            Icon(Icons.Filled.Delete, null, tint = Color.White)
-                        }
-                    }
+                    )
                 )
             },
             content = {

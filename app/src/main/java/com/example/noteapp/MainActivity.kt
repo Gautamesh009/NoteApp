@@ -80,7 +80,7 @@ fun AppNavHost() {
     // 🌌 Crossfade background layer (always visible, no white flash)
     Crossfade(
         targetState = bgBrush,
-        animationSpec = tween(3000, easing = LinearOutSlowInEasing)
+        animationSpec = tween(5000, easing = LinearOutSlowInEasing)
     ) { brush ->
         Box(
             modifier = Modifier
