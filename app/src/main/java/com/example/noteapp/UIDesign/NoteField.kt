@@ -22,9 +22,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -52,6 +60,7 @@ import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -71,6 +80,10 @@ import com.example.noteapp.UIDesign.Colors.toxicWaste
 @Composable
 fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
     val transition = rememberInfiniteTransition()
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("Unknown") }
+    val tagOptions = listOf("Important", "Code", "Completed", "Check List")
+
 
     // Animate a float that shifts the gradient
     val offsetX by transition.animateFloat(
@@ -126,7 +139,8 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                         val save = NoteEntity(
                             title = titleTextField.value,
                             author = authorTextField.value,
-                            notes = noteTextField.value
+                            notes = noteTextField.value,
+                            tag =selectedOption
                         )
                         val insertNote = viewModel.insert(save)
                         navController.popBackStack()
@@ -143,7 +157,8 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
             )
         },
         content = {
-            Box(modifier = Modifier.fillMaxSize()
+            Box(modifier = Modifier
+                .fillMaxSize()
                 .background(Color(0xFF0A0A0F))
                 .graphicsLayer(alpha = .8f)) {
                 Image(
@@ -154,7 +169,8 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                 )
             }
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(it)
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -165,39 +181,113 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    OutlinedTextField(value = titleTextField.value, onValueChange = {
-                        titleTextField.value = it
-                    },
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = titleTextField.value,
+                            onValueChange = { titleTextField.value = it },
+                            label = { Text("Title",
+                                    style = TextStyle(
+                                        brush = Brush.linearGradient(
+                                            colors = toxicWaste,
+                                            start = Offset(0f, 0f),
+                                            end = Offset(500f, 0f)
+                                        )
+                                    )
+                                ) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent,
+                                cursorColor = Color.Cyan,
+                                focusedLabelColor = Color.Cyan,
+                                unfocusedLabelColor = Color.Gray
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth(.7f)
+                                .alpha(0.8f)
+                                .drawBehind {
+                                    // Draw custom animated border
+                                    drawRoundRect(
+                                        brush = animatedBrush,
+                                        style = Stroke(width = 4.dp.toPx()),
+                                        cornerRadius = CornerRadius(12.dp.toPx(), 12.dp.toPx())
+                                    )
+                                }
+                        )
 
-                        label = {
-                            Text("Title",
-                                style = TextStyle(
+                        Spacer(Modifier.width(5.dp))
+
+                        Box(
+                            Modifier
+                                .background(Color.Transparent)
+                                .fillMaxWidth(.4f)
+                                .border(
                                     brush = Brush.linearGradient(
-                                        colors = toxicWaste,
+                                        colors = ghostShell,
                                         start = Offset(0f, 0f),
                                         end = Offset(500f, 0f)
+                                    ),
+                                    width = 2.dp,
+                                    shape = RoundedCornerShape(8.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            IconButton(onClick = { expanded = true }) {
+                                if (expanded != true) {
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowDown,
+                                        contentDescription = "Tags",
+                                        tint = Color.Cyan
                                     )
-                                )
-                            )
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Transparent,
-                            unfocusedBorderColor = Color.Transparent,
-                            cursorColor = Color.Cyan,
-                            focusedLabelColor = Color.Cyan,
-                            unfocusedLabelColor = Color.Gray
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                            .alpha(0.8f)
-                            .drawBehind {
-                                // Draw custom animated border
-                                drawRoundRect(
-                                    brush = animatedBrush,
-                                    style = Stroke(width = 4.dp.toPx()),
-                                    cornerRadius = CornerRadius(12.dp.toPx(), 12.dp.toPx())
-                                )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowUp,
+                                        contentDescription = "Tags",
+                                        tint = Color.Cyan
+                                    )
+                                }
                             }
-                    )
+
+                            // Cyberpunk DropMenu
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                modifier = Modifier
+                                    .background(
+                                        Brush.linearGradient(
+                                            colors = listOf(
+                                                Color.Black,
+                                                Color(0xFF00E5FF),
+                                                Color(0xFFFF4081)
+                                            )
+                                        )
+                                    )
+                                    .border(
+                                        width = 2.dp,
+                                        brush = Brush.linearGradient(
+                                            colors = listOf(Color.Cyan, Color.Magenta, Color.Blue)
+                                        ),
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                            ) {
+                                tagOptions.forEach { tag ->
+                                    DropdownMenuItem(
+                                        text = { Text(tag, color = Color.White) },
+                                        onClick = {
+                                            selectedOption = tag
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     Spacer(Modifier.height(5.dp))
                     OutlinedTextField(value = authorTextField.value, onValueChange = {
                         authorTextField.value = it
@@ -214,13 +304,16 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
                             focusedBorderColor = Color.Transparent,
                             unfocusedBorderColor = Color.Transparent,
                             cursorColor = Color.Cyan,
                             focusedLabelColor = Color.Cyan,
                             unfocusedLabelColor = Color.Gray
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .alpha(0.8f)
                             .drawBehind {
                                 // Draw custom animated border
@@ -247,6 +340,8 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
                             focusedBorderColor = Color.Transparent,
                             unfocusedBorderColor = Color.Transparent,
                             cursorColor = Color.Cyan,
@@ -254,7 +349,9 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
                             unfocusedLabelColor = Color.Gray
                         ),
                         maxLines = 40,
-                        modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
                             .shadow(
                                 elevation = 2.dp,
                                 ambientColor = Color.Cyan,

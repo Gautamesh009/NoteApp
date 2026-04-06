@@ -384,7 +384,7 @@ fun NoteCard(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            Text("~ Tag:", color = designColor, fontSize = 12.sp)
+            Text(note.tag, color = designColor, fontSize = 12.sp)
             Spacer(Modifier.height(4.dp))
             Text(
                 note.title,
