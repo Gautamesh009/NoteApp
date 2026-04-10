@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -32,6 +33,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -40,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.noteapp.NoteAppViewModel.NoteViewModel
+import com.example.noteapp.R
 import com.example.noteapp.UIDesign.Colors.cyberpunkClassic
 import com.example.noteapp.UIDesign.Colors.ghostShell
 import com.example.noteapp.UIDesign.Colors.neoTokyo
@@ -82,6 +86,15 @@ fun UpdateScreen(
             repeatMode = RepeatMode.Reverse
         )
     )
+    val infiniteTransition = rememberInfiniteTransition()
+
+    val offset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = LinearEasing)
+        )
+    )
 
     val animatedBrush = Brush.linearGradient(
         colors = ghostShell,
@@ -96,47 +109,61 @@ fun UpdateScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        "Update Note",
-                        fontSize = 28.sp,
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.W200,
-                        fontStyle = FontStyle.Normal,
-                        color = Color.White
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
-                    }
-                },
-                actions = {
-                    // Save button in the top bar
-                    IconButton(onClick = {
-                        if (title.isBlank()) {
-                            titleError = true
-                        } else {
-                            // 5. Copy the note with updated fields and save
-                            val updatedNote = note.copy(
-                                title  = title.trim(),
-                                author = author.trim().ifBlank { null },
-                                notes  = body.trim()
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Update",
+                            fontSize = 28.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.W200,
+                            fontStyle = FontStyle.Normal,
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(Color.Magenta, Color.Cyan, Color(0xFFDA00FF)),
+                                    start = Offset(offset, 0f),
+                                    end = Offset(offset + 500f, 0f)
+                                )
                             )
-                            viewModel.update(updatedNote)       // call your update fun
-                            navController.navigate("mainScreen") {
-                                popUpTo("mainScreen") { inclusive = true }
-                            }
-                        }
-                    }) {
-                        Icon(Icons.Filled.Done, contentDescription = "Save", tint = Color.White)
+                        )
+                        Spacer(Modifier.width(5.dp))
+                        Text(
+                            "Note",
+                            fontSize = 28.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.W200,
+                            fontStyle = FontStyle.Normal,
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(Color.Cyan, Color.Magenta, Color.Blue),
+                                    start = Offset(offset, 0f),
+                                    end = Offset(offset + 500f, 0f)
+                                )
+                            )
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFF022F54)
+                    containerColor = Color(0xFF021F38)
                 )
             )
         }
     ) { padding ->
+        Box(
+            Modifier.fillMaxSize()
+                .background(Color(0xFF0A0A0F)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(
+                    id = R.drawable.img_3
+                ),
+                "Background",
+                contentScale = ContentScale.Crop
+            )
+        }
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -145,6 +172,7 @@ fun UpdateScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
