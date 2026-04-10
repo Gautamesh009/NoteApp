@@ -70,6 +70,7 @@ import com.example.noteapp.R
 import com.example.noteapp.UIDesign.Colors.colorForText
 import com.example.noteapp.UIDesign.Colors.cyberpunkClassic
 import com.example.noteapp.UIDesign.Colors.neoTokyo
+import com.example.noteapp.UIDesign.Colors.purpleHaze
 import com.example.noteapp.UIDesign.Colors.toxicWaste
 
 @Composable
@@ -165,12 +166,21 @@ fun MainScreen(
             // Background
             Box(modifier = Modifier.fillMaxSize()
                 .background(Color(0xFF0A0A0F))
-                .graphicsLayer(alpha = .8f)) {
+                .graphicsLayer(alpha = .8f)
+                .background(brush = Brush.linearGradient(
+                    colors = purpleHaze
+                ))
+            ) {
                 Image(
-                    painter = painterResource(id = R.drawable.img),
-                    contentDescription = "Background",
+                    painter = painterResource(
+                        id = R.drawable.img
+                    ),
+                    "Background",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
+                        .graphicsLayer(
+                            alpha = 0.7f
+                        )
                 )
             }
 

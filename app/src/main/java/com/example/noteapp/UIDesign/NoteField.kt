@@ -176,7 +176,7 @@ fun NoteFieldCom(navController: NavController, viewModel : NoteViewModel) {
             ) {
                 Box(
                     Modifier
-                        .size(70.dp)
+                        .size(56.dp)
                         .background(
                             Brush.linearGradient(
                                 colors = listOf(Color.Cyan, Color.Magenta, Color.Blue),
